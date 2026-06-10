@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation Lady In Black - Ultimate Edition</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:Arial,sans-serif;overflow:hidden}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px}
+#intro{background:radial-gradient(circle,#111,#000)}
+button{padding:14px 30px;border:none;border-radius:40px;cursor:pointer;font-weight:bold}
+#decryptBtn,#acceptMission{background:#00aa44;color:#fff}
+#ignoreBtn,#rejectMission{background:#fff;color:#000;position:absolute}
+#mission,#explosion,#final{display:none}
+#mission{background:#000;color:#00ff66;font-family:"Courier New",monospace;justify-content:flex-start;align-items:center;padding-top:20px}
+#terminal{max-width:900px;white-space:pre-wrap;line-height:1.5;padding:20px;text-align:center}
+#decisionButtons{display:none;position:fixed;bottom:25px;left:50%;transform:translateX(-50%)}
+#rejectMission{margin-left:20px}
+#countdown{position:fixed;top:20px;right:30px;font-size:80px;color:red;font-weight:bold}
+.redalert{animation:redflash .5s infinite}
+@keyframes redflash{50%{background:#5a0000}}
+#explosion{
+display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;
+justify-content:center;align-items:center;
+background:black;z-index:99999;overflow:hidden;
+}
+#explosionVideo{
+position:absolute;
+top:50%;
+left:50%;
+width:100vw;
+height:100vh;
+object-fit:cover;
+transform:translate(-50%,-50%);
+}
+.shake{animation:shake .08s infinite}
+@keyframes shake{
+0%{transform:translate(4px,4px)}25%{transform:translate(-4px,-4px)}
+50%{transform:translate(4px,-4px)}75%{transform:translate(-4px,4px)}
+100%{transform:translate(4px,4px)}
+}
+#final{display:none;background:#000;flex-direction:column}
+.glow{color:#00ff66;text-shadow:0 0 20px #00ff66}
+.hidden{opacity:0;transition:opacity 1s ease}
+.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div id="intro" class="screen">
+<h1>MI6 SECURE SERVER</h1><br>
+<h2>INCOMING TRANSMISSION</h2>
+<p>PRIORITY: TOP SECRET</p>
+<p>FOR: AGENT LADY HULK</p><br>
+<button id="decryptBtn">DECRYPT FILE</button>
+<button id="ignoreBtn">IGNORE TRANSMISSION</button>
+</div>
+
+<div id="mission" class="screen">
+<div id="terminal"></div>
+<div id="decisionButtons">
+<button id="acceptMission">ACCEPT MISSION</button>
+<button id="rejectMission">DO NOT ACCEPT</button>
+</div>
+<div id="countdown"></div>
+</div>
+
+<div id="explosion" class="screen">
+<video id="explosionVideo" preload="auto" playsinline muted>
+<source src="explosion.mp4" type="video/mp4">
+</video>
+</div>
+
+<div id="final" class="screen">
+<h1>CLASSIFIED FILE DESTROYED</h1><br>
+<h2>MISSION AUTHORISED</h2>
+<h2>AGENT LADY HULK</h2><br>
+<h1 class="glow">OPERATION:<br>LADY IN BLACK</h1>
+
+<div id="reveal">
+<br><br>
+<h2 id="objective" class="hidden">
+CLASSIFIED OBJECTIVE:<br><br>
+AN EVENING WITH AGENT PRASENJIT
+</h2>
+<br>
+<h2 id="goodLuck" class="hidden">GOOD LUCK, AGENT.</h2>
+<br>
+<p id="endTransmission" class="hidden">END TRANSMISSION.</p>
+</div>
+</div>
+
+<audio id="explosionSound" preload="auto">
+<source src="explosion.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="endingMusic" preload="auto" loop>
+<source src="spy_orchestra.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const intro = document.getElementById("intro");
+const mission = document.getElementById("mission");
+const terminal = document.getElementById("terminal");
+const decisionButtons = document.getElementById("decisionButtons");
+const countdown = document.getElementById("countdown");
+const explosion = document.getElementById("explosion");
+const final = document.getElementById("final");
+const objective = document.getElementById("objective");
+const goodLuck = document.getElementById("goodLuck");
+const endTransmission = document.getElementById("endTransmission");
+const decryptBtn = document.getElementById("decryptBtn");
+const ignoreBtn = document.getElementById("ignoreBtn");
+const acceptMission = document.getElementById("acceptMission");
+const rejectMission = document.getElementById("rejectMission");
+
+function moveButton(btn){
+ btn.style.left=Math.random()*(window.innerWidth-220)+'px';
+ btn.style.top=Math.random()*(window.innerHeight-120)+'px';
+}
+
+ignoreBtn.onmouseover=()=>moveButton(ignoreBtn);
+ignoreBtn.ontouchstart=()=>moveButton(ignoreBtn);
+
+decryptBtn.onclick=()=>{
+ intro.style.display='none';
+ mission.style.display='flex';
+
+ const text=`GOOD EVENING AGENT LADY HULK
+
+CLASSIFIED TRANSMISSION // MI6
+
+MISSION:
+OPERATION LADY IN BLACK
+
+TARGET:
+AGENT PRASENJIT
+
+YOUR MISSION,
+SHOULD YOU CHOOSE TO ACCEPT IT,
+
+IS TO ACCOMPANY
+AGENT PRASENJIT
+
+ON A HIGHLY CLASSIFIED
+EVENING OPERATION.
+
+THIS MESSAGE WILL
+SELF DESTRUCT IN
+6 SECONDS.`;
+
+ let i=0;
+ const writer=setInterval(()=>{
+   terminal.textContent += text.charAt(i++);
+   if(i>=text.length){
+      clearInterval(writer);
+      setTimeout(()=>{
+         decisionButtons.style.display='block';
+      },1000);
+   }
+ },25);
+
+ const speech=new SpeechSynthesisUtterance(
+ 'Good evening Agent Lady Hulk. This is a classified transmission from MI6. Your mission, should you choose to accept it, is to accompany Agent Prasenjit on a highly classified evening operation. This message will self destruct in six seconds.'
+ );
+ speech.rate=0.9;
+ speech.pitch=0.8;
+ if ('speechSynthesis' in window) {
+   try{ speechSynthesis.speak(speech); }catch(e){}
+ }
+};
+
+rejectMission.onmouseover=()=>moveButton(rejectMission);
+rejectMission.ontouchstart=()=>moveButton(rejectMission);
+
+acceptMission.onclick=()=>{
+ decisionButtons.style.display='none';
+
+ let count=6;
+ countdown.textContent=count;
+
+ const timer=setInterval(()=>{
+   try{
+      const ctx=new(window.AudioContext||window.webkitAudioContext)();
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value=800;
+      gain.gain.value=0.05;
+      osc.start();
+      osc.stop(ctx.currentTime+0.08);
+   }catch(e){}
+
+   if(count<=3) mission.classList.add('redalert');
+
+   countdown.textContent=count;
+   count--;
+
+   if(count<0){
+      clearInterval(timer);
+      explodeMission();
+   }
+ },1000);
+};
+
+function explodeMission(){
+ document.body.classList.add('shake');
+ mission.style.display='none';
+ explosion.style.display='flex';
+
+ const boom=document.getElementById('explosionSound');
+ boom.currentTime=0;
+ boom.play().catch(()=>{});
+
+ const video=document.getElementById('explosionVideo');
+ video.currentTime=0;
+ video.play().catch(()=>{});
+
+ const startFinalReveal = ()=>{
+   explosion.style.display='none';
+   document.body.classList.remove('shake');
+   final.style.display='flex';
+
+   setTimeout(()=>{
+      objective.classList.add('show');
+
+      const music=document.getElementById('endingMusic');
+      music.volume=0;
+      music.play().catch(()=>{});
+
+      let fade=setInterval(()=>{
+         if(music.volume<0.30) music.volume+=0.02;
+         else clearInterval(fade);
+      },250);
+
+      setTimeout(()=>{
+         goodLuck.classList.add('show');
+
+         setTimeout(()=>{
+            endTransmission.classList.add('show');
+         },700);
+
+      },700);
+
+   },0);
+ };
+
+ const explosionVideo=document.getElementById('explosionVideo');
+ explosionVideo.onended = startFinalReveal;
+
+ setTimeout(()=>{
+   if(explosion.style.display==='flex'){
+      startFinalReveal();
+   }
+ },8000);
+}
+</script>
+</body>
+</html>
